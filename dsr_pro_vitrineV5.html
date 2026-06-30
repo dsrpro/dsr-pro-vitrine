@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSR Pro — Solutions Digitales Sur-Mesure</title>
+  <meta name="description" content="Sites web, applications mobiles, tokens Web3 — des solutions digitales qui mettent votre business en avance sur la concurrence. 51+ clients accompagnés dans 8 pays." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & VARIABLES ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #378add;
+      --blue-dark: #185fa5;
+      --blue-light: #85b7eb;
+      --blue-pale: #e6f1fb;
+      --teal: #1D9E75;
+      --teal-pale: #E1F5EE;
+      --purple: #534AB7;
+      --purple-pale: #EEEDFE;
+      --dark: #070b14;
+      --dark-2: #0d1526;
+      --dark-3: #0f1e38;
+      --white: #ffffff;
+      --gray-100: #f7f8fa;
+      --gray-200: #eef0f4;
+      --gray-400: #9ba3b4;
+      --gray-600: #5a6478;
+      --gray-800: #1e2535;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+      --spine-color: #00ff88;
+      --spine-glow: rgba(0,255,136,0.3);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--gray-800);
+      background: #040404;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── CANVAS SPINE (fond) ── */
+    #spineCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background: #040404; /* fond de secours */
+    }
+
+    /* ── PROGRESS BAR (fil conducteur) ── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; z-index: 200;
+      width: 0; height: 3px;
+      background: linear-gradient(90deg, var(--spine-color), #32ffaf);
+      transition: width 0.1s ease;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 3px; z-index: 100;
+      background: rgba(7,11,20,0.3);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+    nav.nav-scrolled {
+      background: rgba(7,11,20,0.95);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+    .nav-logo { font-size: 18px; font-weight: 800; color: var(--white); letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--spine-color); }
+
+    .nav-links {
+      display: flex; gap: 28px; align-items: center;
+    }
+    .nav-links a {
+      font-size: 14px; color: rgba(255,255,255,0.65); font-weight: 500;
+      transition: color 0.2s;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; left: 0; bottom: -2px;
+      width: 100%; height: 2px;
+      background: var(--spine-color);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .nav-links a:hover::after,
+    .nav-links a:focus-visible::after {
+      transform: scaleX(1);
+    }
+    .nav-links a:hover, .nav-links a:focus-visible { color: var(--white); }
+    .nav-cta {
+      background: var(--spine-color); color: #040404;
+      font-size: 14px; font-weight: 600;
+      padding: 9px 20px; border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .nav-cta::after { display: none; }
+    .nav-cta:hover, .nav-cta:focus-visible { background: #32ffaf; }
+
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 28px; height: 21px;
+      background: none; border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.3s ease;
+    }
+    .menu-toggle span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background: var(--white);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    .menu-toggle.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+    .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .menu-toggle.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute; top: 64px; left: 0; right: 0;
+        background: rgba(7,11,20,0.98);
+        backdrop-filter: blur(12px);
+        padding: 20px 30px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 16px; }
+    }
+
+    /* ── CONTENU PRINCIPAL (au‑dessus du canvas) ── */
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 100px 40px 0;
+      text-align: center;
+      position: relative;
+    }
+    .hero-inner { max-width: 1100px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(0,255,136,0.1);
+      border: 1px solid rgba(0,255,136,0.3);
+      color: var(--spine-color);
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 7px 16px; border-radius: 99px;
+      margin-bottom: 32px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 58px);
+      font-weight: 800; color: var(--white);
+      line-height: 1.1; letter-spacing: -0.03em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { font-style: normal; color: var(--spine-color); }
+    .hero-sub {
+      font-size: 18px; color: rgba(255,255,255,0.75);
+      max-width: 560px; margin: 0 auto 44px; line-height: 1.75;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 56px;
+      margin-bottom: 48px;
+    }
+    .stat-num { font-size: 32px; font-weight: 800; color: var(--white); line-height: 1; }
+    .stat-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 5px; }
+    .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+    .btn-primary {
+      background: var(--spine-color); color: #040404;
+      font-size: 15px; font-weight: 600;
+      padding: 14px 28px; border-radius: 10px;
+      border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover, .btn-primary:focus-visible { background: #32ffaf; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent; color: rgba(255,255,255,0.85);
+      font-size: 15px; font-weight: 500;
+      padding: 14px 28px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.25); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover, .btn-ghost:focus-visible { border-color: rgba(255,255,255,0.55); color: var(--white); }
+
+    .hero-img-strip {
+      max-width: 900px; margin: 0 auto;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-bottom: none;
+      height: 340px;
+      position: relative;
+    }
+    .hero-img-strip picture, .hero-img-strip img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .hero-img-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+      background: linear-gradient(transparent, #040404);
+    }
+
+    /* ── SECTIONS ── */
+    .section { padding: 88px 40px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--spine-color);
+      margin-bottom: 12px;
+    }
+    .section-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; line-height: 1.2; margin-bottom: 14px; color: var(--white); }
+    .section-lead { font-size: 17px; color: rgba(255,255,255,0.6); max-width: 580px; line-height: 1.75; margin-bottom: 56px; }
+
+    /* ── FADE-IN ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SERVICES ── */
+    .services-bg { background: rgba(7,11,20,0.7); backdrop-filter: blur(4px); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .svc-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.25s, transform 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .svc-card:hover { box-shadow: 0 8px 40px rgba(0,255,136,0.1); transform: translateY(-3px); }
+    .svc-card.featured { border-color: var(--spine-color); position: relative; }
+    .svc-img { height: 200px; overflow: hidden; }
+    .svc-img picture, .svc-img img { transition: transform 0.4s ease; }
+    .svc-card:hover .svc-img img { transform: scale(1.04); }
+    .svc-body { padding: 24px; }
+    .svc-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600;
+      padding: 5px 12px; border-radius: 6px;
+      margin-bottom: 14px;
+    }
+    .tag-blue { background: rgba(55,138,221,0.2); color: var(--blue-light); }
+    .tag-purple { background: rgba(83,74,183,0.2); color: #a99cf0; }
+    .tag-teal { background: rgba(29,158,117,0.2); color: #5DCAA5; }
+    .svc-name { font-size: 19px; font-weight: 700; margin-bottom: 10px; color: var(--white); }
+    .svc-desc { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.65; margin-bottom: 18px; }
+    .svc-price {
+      font-size: 14px; font-weight: 600; color: var(--spine-color);
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 16px;
+    }
+    .svc-features { list-style: none; }
+    .svc-features li {
+      font-size: 13px; color: rgba(255,255,255,0.6);
+      padding: 5px 0;
+      display: flex; align-items: flex-start; gap: 9px;
+    }
+    .svc-features li::before {
+      content: '✓';
+      color: var(--spine-color); font-weight: 700; flex-shrink: 0;
+    }
+    .pop-badge {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--spine-color); color: #040404;
+      font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 99px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .how-img { border-radius: var(--radius); overflow: hidden; height: 380px; box-shadow: var(--shadow); }
+    .how-img picture, .how-img img { width: 100%; height: 100%; object-fit: cover; }
+    .steps { display: flex; flex-direction: column; gap: 28px; }
+    .step-item { display: flex; gap: 20px; align-items: flex-start; }
+    .step-bubble {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: rgba(0,255,136,0.15); color: var(--spine-color);
+      border-radius: 50%;
+      font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-title { font-size: 16px; font-weight: 600; margin-bottom: 5px; color: var(--white); }
+    .step-desc { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+    /* ── TRUST BAND ── */
+    .trust-band {
+      background: rgba(0,255,136,0.05);
+      border-top: 1px solid rgba(0,255,136,0.1);
+      border-bottom: 1px solid rgba(0,255,136,0.1);
+      padding: 48px 40px;
+    }
+    .trust-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; }
+    .trust-item { text-align: center; }
+    .trust-num { font-size: 36px; font-weight: 800; color: var(--spine-color); }
+    .trust-label { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+    /* ── PORTFOLIO ── */
+    .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+    .pf-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(4px);
+    }
+    .pf-card:hover { box-shadow: 0 8px 40px rgba(0,255,136,0.1); transform: translateY(-6px); }
+    .pf-thumb {
+      height: 210px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pf-thumb picture, .pf-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .pf-card:hover .pf-thumb img { transform: scale(1.06); }
+    .pf-thumb .pf-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .pf-card:hover .pf-overlay { opacity: 1; }
+    .pf-overlay a {
+      background: var(--spine-color); color: #040404;
+      padding: 10px 22px; border-radius: 99px;
+      font-size: 14px; font-weight: 600;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .pf-overlay a:hover { background: #32ffaf; }
+    .pf-body { padding: 22px 24px 26px; flex: 1; display: flex; flex-direction: column; }
+    .pf-cat {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--spine-color);
+      margin-bottom: 8px;
+    }
+    .pf-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--white); }
+    .pf-desc { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; flex: 1; margin-bottom: 16px; }
+    .pf-link {
+      font-size: 14px; font-weight: 600; color: var(--spine-color);
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: gap 0.2s;
+      text-decoration: none;
+    }
+    .pf-link:hover { gap: 12px; }
+
+    /* ── TESTIMONIALS ── */
+    .testi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .testi-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 28px;
+      backdrop-filter: blur(4px);
+    }
+    .testi-quote {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 17px; line-height: 1.7;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 20px;
+    }
+    .testi-author { font-size: 13px; color: rgba(255,255,255,0.4); font-weight: 500; }
+    .testi-stars { color: #f5b342; font-size: 14px; margin-bottom: 12px; letter-spacing: 2px; }
+
+    /* ── GUARANTEES ── */
+    .guarantees-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .guarantee-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .guarantee-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 16px;
+      background: rgba(0,255,136,0.1);
+    }
+    .guarantee-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--white); }
+    .guarantee-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+    /* ── CONTACT ── */
+    .contact-section {
+      padding: 100px 40px 80px;
+      text-align: center;
+      position: relative;
+    }
+    .contact-section h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: var(--white); margin-bottom: 16px; line-height: 1.15; }
+    .contact-section > p { font-size: 17px; color: rgba(255,255,255,0.6); margin-bottom: 44px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+    .contact-box {
+      display: inline-flex; align-items: center; gap: 16px;
+      background: rgba(0,255,136,0.1);
+      border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 12px; padding: 20px 36px;
+      margin-bottom: 24px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .contact-box:hover, .contact-box:focus-visible {
+      background: rgba(0,255,136,0.2);
+      border-color: rgba(0,255,136,0.55);
+      transform: translateY(-2px);
+    }
+    .telegram-icon { font-size: 28px; }
+    .contact-handle { font-size: 22px; font-weight: 700; color: var(--spine-color); }
+    .contact-note { font-size: 14px; color: rgba(255,255,255,0.4); }
+
+    .contact-form-wrap {
+      max-width: 580px; margin: 32px auto 0;
+      text-align: left;
+    }
+    .contact-form-wrap form {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .contact-form-wrap input,
+    .contact-form-wrap textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 15px;
+      transition: border-color 0.2s, background 0.2s;
+      outline: none;
+    }
+    .contact-form-wrap input::placeholder,
+    .contact-form-wrap textarea::placeholder { color: rgba(255,255,255,0.35); }
+    .contact-form-wrap input:focus,
+    .contact-form-wrap textarea:focus {
+      border-color: var(--spine-color);
+      background: rgba(255,255,255,0.1);
+    }
+    .contact-form-wrap textarea { min-height: 120px; resize: vertical; }
+    .contact-form-wrap button {
+      background: var(--spine-color); color: #040404;
+      border: none; border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 16px; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      align-self: flex-start;
+    }
+    .contact-form-wrap button:hover, .contact-form-wrap button:focus-visible {
+      background: #32ffaf;
+      transform: translateY(-1px);
+    }
+    .form-status {
+      margin-top: 12px;
+      font-size: 15px;
+      color: var(--spine-color);
+      display: none;
+    }
+    .form-status.error { color: #e74c3c; }
+    .form-status.show { display: block; }
+
+    .perks-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 40px; }
+    .perk-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 99px; padding: 9px 18px;
+      font-size: 13px; color: rgba(255,255,255,0.6);
+    }
+    .perk-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--spine-color); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      padding: 32px 40px;
+      text-align: center;
+      border-top: 1px solid rgba(0,255,136,0.1);
+      overflow: hidden;
+      background: #040404;
+      z-index: 1;
+    }
+    footer::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0d1526, #040404, #0f1e38, #040404);
+      background-size: 400% 400%;
+      animation: gradientBreath 18s ease-in-out infinite;
+      z-index: -1;
+    }
+    @keyframes gradientBreath {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    footer p {
+      position: relative; z-index: 2;
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      transition: color 0.3s ease;
+    }
+    footer p:hover { color: rgba(255,255,255,0.8); }
+    footer strong {
+      color: rgba(255,255,255,0.6);
+      transition: color 0.3s ease;
+    }
+    footer p:hover strong { color: var(--spine-color); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .hero { padding: 60px 20px 0; }
+      .hero-stats { gap: 28px; }
+      .section { padding: 60px 20px; }
+      .how-grid { grid-template-columns: 1fr; }
+      .how-img { height: 240px; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .trust-inner { gap: 32px; }
+      .contact-section { padding: 64px 20px; }
+      footer { padding: 24px 20px; }
+      .hero-img-strip { height: 200px; }
+      .contact-form-wrap button { align-self: stretch; }
+      .pf-thumb { height: 170px; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 28px; }
+      .stat-num { font-size: 24px; }
+      .hero-btns .btn-primary, .hero-btns .btn-ghost { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CANVAS SPINE (fond) -->
+<canvas id="spineCanvas"></canvas>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav role="banner" id="mainNav">
+  <div class="nav-logo">DSR<span>Pro</span></div>
+  <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Menu principal">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="navLinks">
+    <a href="#services">Services</a>
+    <a href="#portfolio">Réalisations</a>
+    <a href="#methode">Méthode</a>
+    <a href="#temoignages">Témoignages</a>
+    <a href="#contact" class="nav-cta">Devis gratuit</a>
+  </div>
+</nav>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="content">
+
+  <!-- HERO -->
+  <section class="hero" role="main">
+    <div class="hero-inner">
+      <div class="hero-badge">⚡ Solutions digitales sur-mesure</div>
+      <h1>Votre présence numérique,<br><em>construite pour performer</em></h1>
+      <p class="hero-sub">Sites web, applications mobiles, tokens Web3 — des solutions qui mettent votre business en avance sur la concurrence.</p>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">51+</div>
+          <div class="stat-label">Clients accompagnés</div>
+        </div>
+        <div>
+          <div class="stat-num">8</div>
+          <div class="stat-label">Pays représentés</div>
+        </div>
+        <div>
+          <div class="stat-num">7–21j</div>
+          <div class="stat-label">Délai de livraison</div>
+        </div>
+      </div>
+      <div class="hero-btns">
+        <a href="#contact" class="btn-primary">💬 Obtenir un devis gratuit</a>
+        <a href="#services" class="btn-ghost">Voir les services →</a>
+      </div>
+      <div class="hero-img-strip">
+        <picture>
+          <source srcset="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&fm=webp&q=80" type="image/webp">
+          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80" alt="Développeur web" loading="lazy" decoding="async">
+        </picture>
+        <div class="hero-img-overlay"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAND -->
+  <div class="trust-band fade-in">
+    <div class="trust-inner">
+      <div class="trust-item"><div class="trust-num">51+</div><div class="trust-label">Clients satisfaits</div></div>
+      <div class="trust-item"><div class="trust-num">8</div><div class="trust-label">Pays couverts</div></div>
+      <div class="trust-item"><div class="trust-num">100%</div><div class="trust-label">Code sécurisé</div></div>
+      <div class="trust-item"><div class="trust-num">2h</div><div class="trust-label">Temps de réponse</div></div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="section services-bg" id="services">
+    <div class="section-inner">
+      <p class="eyebrow fade-in">Services</p>
+      <h2 class="section-title fade-in">Ce que je vous propose</h2>
+      <p class="section-lead fade-in">Trois offres pensées pour les entrepreneurs et PME qui veulent des résultats concrets, livrés dans les délais.</p>
+      <div class="services-grid">
+        <div class="svc-card featured fade-in">
+          <span class="pop-badge">⭐ Populaire</span>
+          <div class="svc-img">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80" alt="Site web responsive" loading="lazy" decoding="async">
+            </picture>
+          </div>
+          <div class="svc-body">
+            <span class="svc-tag tag-blue">🌐 Site internet</span>
+            <div class="svc-name">Site internet professionnel</div>
+            <div class="svc-desc">Un site moderne, rapide et optimisé qui convertit vos visiteurs en clients. Idéal pour entrepreneurs, PME, commerçants et professions libérales.</div>
+            <div class="svc-price">À partir de 265 500 FCFA</div>
+            <ul class="svc-features">
+              <li>Design responsive (mobile, tablette, desktop)</li>
+              <li>Animations fluides et UX optimisée</li>
+              <li>Référencement naturel (SEO) intégré</li>
+              <li>Livraison en 7 à 14 jours</li>
+            </ul>
+          </div>
+        </div>
+        <div class="svc-card fade-in">
+          <div class="svc-img">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&q=80" alt="Application mobile" loading="lazy" decoding="async">
+            </picture>
+          </div>
+          <div class="svc-body">
+            <span class="svc-tag tag-purple">📱 Application mobile</span>
+            <div class="svc-name">Application web & mobile</div>
+            <div class="svc-desc">Pilotez votre activité depuis n'importe où avec une app Android/iOS sur-mesure et un tableau de bord complet.</div>
+            <div class="svc-price">À partir de 2 455 000 FCFA</div>
+            <ul class="svc-features">
+              <li>Android et iOS + tableau de bord admin</li>
+              <li>Gestion stocks, facturation, suivi clients</li>
+              <li>Synchronisation cloud sécurisée</li>
+              <li>Mises à jour incluses</li>
+            </ul>
+          </div>
+        </div>
+        <div class="svc-card fade-in">
+          <div class="svc-img">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80" alt="Blockchain" loading="lazy" decoding="async">
+            </picture>
+          </div>
+          <div class="svc-body">
+            <span class="svc-tag tag-teal">🔗 Web3 & Blockchain</span>
+            <div class="svc-name">Création de token & Airdrop</div>
+            <div class="svc-desc">Entrez dans l'économie Web3 avec un token sur-mesure et une stratégie de distribution complète pour attirer vos investisseurs.</div>
+            <div class="svc-price">À partir de 1 500 000 FCFA</div>
+            <ul class="svc-features">
+              <li>ERC20, BEP20, TRC20, SPL et autres</li>
+              <li>Compatible Ethereum, BSC, Tron, Solana</li>
+              <li>Conception et déploiement de l'Airdrop</li>
+              <li>Accompagnement au lancement</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="methode">
+    <div class="section-inner">
+      <div class="how-grid">
+        <div>
+          <p class="eyebrow fade-in">Méthode</p>
+          <h2 class="section-title fade-in">Comment ça se passe ?</h2>
+          <p class="section-lead fade-in" style="margin-bottom: 40px;">Un processus clair et transparent, de la première discussion à la livraison finale.</p>
+          <div class="steps">
+            <div class="step-item fade-in">
+              <div class="step-bubble">1</div>
+              <div>
+                <div class="step-title">Discussion de votre projet</div>
+                <div class="step-desc">On échange sur vos besoins, vos objectifs et vos contraintes. Réponse garantie sous 2h.</div>
+              </div>
+            </div>
+            <div class="step-item fade-in">
+              <div class="step-bubble">2</div>
+              <div>
+                <div class="step-title">Devis personnalisé</div>
+                <div class="step-desc">Je vous envoie une proposition détaillée avec les fonctionnalités, les délais et le tarif exact.</div>
+              </div>
+            </div>
+            <div class="step-item fade-in">
+              <div class="step-bubble">3</div>
+              <div>
+                <div class="step-title">Développement & suivi</div>
+                <div class="step-desc">Je travaille sur votre projet et vous tiens informé à chaque étape clé du développement.</div>
+              </div>
+            </div>
+            <div class="step-item fade-in">
+              <div class="step-bubble">4</div>
+              <div>
+                <div class="step-title">Livraison & support</div>
+                <div class="step-desc">Votre solution est livrée, testée et opérationnelle. Je reste disponible après la mise en ligne.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="how-img fade-in">
+          <picture>
+            <source srcset="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&fm=webp&q=80" type="image/webp">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80" alt="Équipe" loading="lazy" decoding="async">
+          </picture>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUARANTEES -->
+  <section class="section services-bg">
+    <div class="section-inner">
+      <p class="eyebrow fade-in" style="text-align:center">Garanties</p>
+      <h2 class="section-title fade-in" style="text-align:center; margin-bottom:14px">Inclus dans chaque prestation</h2>
+      <p class="section-lead fade-in" style="text-align:center; margin: 0 auto 48px;">Pas de mauvaises surprises. Voici ce que vous obtenez avec chaque projet.</p>
+      <div class="guarantees-grid">
+        <div class="guarantee-card fade-in">
+          <div class="guarantee-icon">🛡️</div>
+          <div class="guarantee-title">Code propre & sécurisé</div>
+          <div class="guarantee-desc">Un code maintenable, documenté et protégé contre les failles courantes.</div>
+        </div>
+        <div class="guarantee-card fade-in">
+          <div class="guarantee-icon">⚡</div>
+          <div class="guarantee-title">Livraison rapide</div>
+          <div class="guarantee-desc">7 à 21 jours selon la complexité du projet. Les délais sont toujours respectés.</div>
+        </div>
+        <div class="guarantee-card fade-in">
+          <div class="guarantee-icon">🎧</div>
+          <div class="guarantee-title">Support après livraison</div>
+          <div class="guarantee-desc">Je reste disponible pour corriger, ajuster ou faire évoluer votre solution.</div>
+        </div>
+        <div class="guarantee-card fade-in">
+          <div class="guarantee-icon">💬</div>
+          <div class="guarantee-title">Devis gratuit</div>
+          <div class="guarantee-desc">Un devis détaillé et personnalisé, envoyé dans la journée, sans engagement.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="section" id="portfolio">
+    <div class="section-inner">
+      <p class="eyebrow fade-in" style="text-align:center">Réalisations</p>
+      <h2 class="section-title fade-in" style="text-align:center; margin-bottom:14px">Des projets qui parlent d’eux‑mêmes</h2>
+      <p class="section-lead fade-in" style="text-align:center; margin: 0 auto 48px;">Découvrez trois réalisations concrètes, livrées avec succès pour des clients exigeants.</p>
+      <div class="portfolio-grid">
+        <div class="pf-card fade-in">
+          <div class="pf-thumb">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?w=800&q=80" alt="Site luxe" loading="lazy" decoding="async">
+            </picture>
+            <div class="pf-overlay"><a href="#" target="_blank">Voir le projet</a></div>
+          </div>
+          <div class="pf-body">
+            <div class="pf-cat">🌐 Site internet</div>
+            <div class="pf-name">Vitrine de luxe — Joaillerie</div>
+            <div class="pf-desc">Un site élégant avec galerie immersive, prise de rendez-vous en ligne et catalogue de collections haut de gamme.</div>
+            <a href="#" class="pf-link">Découvrir →</a>
+          </div>
+        </div>
+        <div class="pf-card fade-in">
+          <div class="pf-thumb">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&q=80" alt="App livraison" loading="lazy" decoding="async">
+            </picture>
+            <div class="pf-overlay"><a href="#" target="_blank">Voir le projet</a></div>
+          </div>
+          <div class="pf-body">
+            <div class="pf-cat">📱 Application mobile</div>
+            <div class="pf-name">App de livraison — Food Express</div>
+            <div class="pf-desc">Application iOS/Android avec suivi des livreurs en temps réel, paiement intégré et système de notation pour les restaurants.</div>
+            <a href="#" class="pf-link">Découvrir →</a>
+          </div>
+        </div>
+        <div class="pf-card fade-in">
+          <div class="pf-thumb">
+            <picture>
+              <source srcset="https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=800&fm=webp&q=80" type="image/webp">
+              <img src="https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=800&q=80" alt="DeFi" loading="lazy" decoding="async">
+            </picture>
+            <div class="pf-overlay"><a href="#" target="_blank">Voir le projet</a></div>
+          </div>
+          <div class="pf-body">
+            <div class="pf-cat">🔗 Web3 & Blockchain</div>
+            <div class="pf-name">Plateforme DeFi + Token communautaire</div>
+            <div class="pf-desc">Lancement d’un token BEP20, interface de staking et tableau de bord pour la gouvernance décentralisée.</div>
+            <a href="#" class="pf-link">Découvrir →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="temoignages">
+    <div class="section-inner">
+      <p class="eyebrow fade-in" style="text-align:center">Témoignages</p>
+      <h2 class="section-title fade-in" style="text-align:center; margin-bottom:14px">Ce que disent mes clients</h2>
+      <p class="section-lead fade-in" style="text-align:center; margin: 0 auto 48px;">Leur succès est ma meilleure carte de visite.</p>
+      <div class="testi-grid">
+        <div class="testi-card fade-in">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"DSR Pro a transformé mon activité. Le site livré en moins de deux semaines, professionnel, rapide, et mes clients l'adorent. Un accompagnement sérieux du début à la fin."</div>
+          <div class="testi-author">— Client accompagné, secteur commerce · Abidjan</div>
+        </div>
+        <div class="testi-card fade-in">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"L'application de gestion de stock a été un vrai tournant pour mon entreprise. Je peux suivre tout depuis mon téléphone. La qualité du travail était au-dessus de mes attentes."</div>
+          <div class="testi-author">— Entrepreneur, distribution & logistique · Douala</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <h2 class="fade-in">Prêt à démarrer votre projet ?</h2>
+    <p class="fade-in">Décrivez votre besoin, je vous reviens avec un devis détaillé dans la journée. Réponse garantie sous 2h.</p>
+    <div class="fade-in">
+      <a href="https://t.me/Dsr_Pro" target="_blank" rel="noopener" class="contact-box">
+        <span class="telegram-icon">✈️</span>
+        <div class="contact-handle">@Dsr_Pro</div>
+      </a>
+    </div>
+    <div class="contact-note fade-in">Devis gratuit · Sans engagement · Réponse sous 2h</div>
+    <div class="contact-form-wrap fade-in">
+      <form id="contactForm" action="https://formspree.io/f/your-id" method="POST">
+        <input type="text" name="name" placeholder="Votre nom" required aria-required="true">
+        <input type="email" name="email" placeholder="Votre adresse email" required aria-required="true">
+        <textarea name="message" placeholder="Décrivez votre projet (objectifs, fonctionnalités souhaitées...)" required aria-required="true"></textarea>
+        <button type="submit">Envoyer la demande</button>
+        <div class="form-status" id="formStatus"></div>
+      </form>
+    </div>
+    <div class="perks-row fade-in">
+      <div class="perk-pill"><span class="dot"></span>Code propre & sécurisé</div>
+      <div class="perk-pill"><span class="dot"></span>Livraison 7 à 21 jours</div>
+      <div class="perk-pill"><span class="dot"></span>Support après livraison</div>
+      <div class="perk-pill"><span class="dot"></span>51+ clients · 8 pays</div>
+      <div class="perk-pill"><span class="dot"></span>Négociation possible</div>
+    </div>
+  </section>
+
+</div> <!-- /content -->
+
+<!-- FOOTER -->
+<footer class="fade-in">
+  <p>© 2025 <strong>DSR Pro</strong> — Solutions Digitales Sur-Mesure · Tous droits réservés</p>
+</footer>
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "DSR Pro",
+  "description": "Solutions digitales sur-mesure : sites web, applications mobiles, tokens Web3.",
+  "url": "https://votre-site.com",
+  "telephone": "+225-XX-XX-XX-XX",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "CI"
+  },
+  "sameAs": [
+    "https://t.me/Dsr_Pro"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Services digitaux",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Site internet professionnel",
+          "description": "Site moderne, responsive et optimisé SEO."
+        },
+        "price": "265500",
+        "priceCurrency": "XOF"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Application web & mobile",
+          "description": "Application Android/iOS de gestion d'entreprise."
+        },
+        "price": "2455000",
+        "priceCurrency": "XOF"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Création de token & Airdrop",
+          "description": "Token sur-mesure et stratégie de distribution."
+        },
+        "price": "1500000",
+        "priceCurrency": "XOF"
+      }
+    ]
+  }
+}
+</script>
+
+<script>
+  (function() {
+    'use strict';
+
+    // ── Progress Bar ──
+    const progressBar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = progress + '%';
+    });
+
+    // ── Nav background ──
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('nav-scrolled', window.scrollY > 50);
+    });
+
+    // ── Menu hamburger ──
+    const toggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    toggle.addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true' ? false : true;
+      this.setAttribute('aria-expanded', expanded);
+      this.classList.toggle('active');
+      navLinks.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 768) {
+        const navContainer = document.querySelector('nav');
+        if (!navContainer.contains(e.target)) {
+          navLinks.classList.remove('open');
+          toggle.classList.remove('active');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+          navLinks.classList.remove('open');
+          toggle.classList.remove('active');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    // ── Form ──
+    const form = document.getElementById('contactForm');
+    const status = document.getElementById('formStatus');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(form);
+      fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      }).then(response => {
+        if (response.ok) {
+          status.textContent = '✅ Votre message a été envoyé ! Je vous réponds sous 2h.';
+          status.className = 'form-status show';
+          form.reset();
+        } else {
+          throw new Error('Erreur réseau');
+        }
+      }).catch(() => {
+        status.textContent = '❌ Une erreur s\'est produite. Veuillez réessayer ou contactez-moi directement sur Telegram.';
+        status.className = 'form-status show error';
+      });
+    });
+
+    // ── Fade-in ──
+    const fadeElements = document.querySelectorAll('.fade-in');
+    if (fadeElements.length) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -20px 0px' });
+      fadeElements.forEach(el => observer.observe(el));
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ── AI SPINE ENGINE (canvas procédural) ──
+    // ════════════════════════════════════════════════════════════
+
+    const canvas = document.getElementById('spineCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    let mouseX = 0, mouseY = 0;
+    let scrollPercent = 0;
+
+    // ── Bruit de Perlin (implémentation simple) ──
+    // (inspiré de https://gist.github.com/banksean/304522)
+    class Perlin {
+      constructor() {
+        this.perm = new Uint8Array(512);
+        const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,
+          140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,
+          75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,
+          56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,
+          77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,
+          245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,
+          89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,
+          3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,
+          207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,
+          152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,
+          98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,
+          242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,
+          107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,
+          127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,
+          78,66,215,61,156,180
+        ];
+        for (let i = 0; i < 512; i++) {
+          this.perm[i] = p[i & 255];
+        }
+      }
+
+      fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+      lerp(a, b, t) { return a + t * (b - a); }
+      grad(hash, x, y) {
+        const h = hash & 3;
+        const u = h < 2 ? x : y;
+        const v = h < 2 ? y : x;
+        return ((h & 1) ? -u : u) + ((h & 2) ? -v : v);
+      }
+
+      noise(x, y) {
+        const X = Math.floor(x) & 255;
+        const Y = Math.floor(y) & 255;
+        const xf = x - Math.floor(x);
+        const yf = y - Math.floor(y);
+        const u = this.fade(xf);
+        const v = this.fade(yf);
+        const p = this.perm;
+        const a = p[X] + Y;
+        const b = p[X+1] + Y;
+        return this.lerp(
+          this.lerp(this.grad(p[a], xf, yf), this.grad(p[b], xf-1, yf), u),
+          this.lerp(this.grad(p[a+1], xf, yf-1), this.grad(p[b+1], xf-1, yf-1), u),
+          v
+        );
+      }
+    }
+
+    const perlin = new Perlin();
+
+    // ── Paramètres ──
+    const SPINE_POINTS = 80;          // nombre de segments
+    const AMPLITUDE_BASE = 80;        // amplitude de l'ondulation
+    const NODE_RADIUS = 3.5;
+    const PULSE_SPEED = 0.25;         // vitesse de l'impulsion
+
+    let time = 0;
+    let pulseOffset = 0;              // position de l'impulsion (0..1)
+
+    // ── Gestion du redimensionnement ──
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * (window.devicePixelRatio || 1);
+      canvas.height = H * (window.devicePixelRatio || 1);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ── Souris ──
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length) {
+        mouseX = e.touches[0].clientX;
+        mouseY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    // ── Scroll ──
+    window.addEventListener('scroll', () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      scrollPercent = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    });
+
+    // ── Symboles IA ──
+    const aiSymbols = ['∑', 'Δ', '∞', '⊕', 'AI', '0101', 'Ξ', 'λ', '∇', '∫', 'Φ', 'ψ', 'ω'];
+    let symbolList = [];
+
+    // ── Animation principale ──
+    function drawSpine() {
+      const now = performance.now() / 1000;
+      time += 0.008; // incrément lent
+
+      // Effet scroll : accélération et luminosité
+      const scrollBoost = 1 + scrollPercent * 2.0;
+      const brightness = 0.7 + scrollPercent * 0.4;
+
+      // Mouvement de la souris (influence douce)
+      const mouseInfluenceX = (mouseX / W - 0.5) * 0.25;
+      const mouseInfluenceY = (mouseY / H - 0.5) * 0.25;
+
+      // ── Génération des points de la colonne ──
+      const points = [];
+      const yStep = H / (SPINE_POINTS - 1);
+
+      for (let i = 0; i < SPINE_POINTS; i++) {
+        const y = i * yStep;
+        // Bruit de Perlin : (y + temps) pour un défilement fluide
+        const n = perlin.noise(y * 0.006 + time * 0.3, time * 0.15 + y * 0.002);
+        // Amplitude modulée par la position verticale (plus d'ondulation au centre)
+        const amplitude = AMPLITUDE_BASE * (1 + 0.8 * Math.sin(y / H * Math.PI));
+        // Influence de la souris (courbure douce)
+        const mouseCurve = mouseInfluenceX * (1 - Math.abs(y / H - 0.5) * 1.2);
+        // Position X = centre + bruit * amplitude + courbure souris
+        const x = W/2 + n * amplitude * 0.7 + mouseCurve * 120;
+
+        points.push({ x, y });
+      }
+
+      // ── Mise à jour de l'impulsion ──
+      pulseOffset = (pulseOffset + PULSE_SPEED * 0.006 * scrollBoost) % 1;
+
+      // ── Dessin ──
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Tracer la courbe (ligne principale)
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        // Lissage simple (quadratique)
+        const p0 = points[i-1];
+        const p1 = points[i];
+        const cpX = (p0.x + p1.x) / 2;
+        const cpY = (p0.y + p1.y) / 2;
+        ctx.quadraticCurveTo(p0.x, p0.y, cpX, cpY);
+      }
+      ctx.strokeStyle = `rgba(0, 255, 136, ${0.3 + brightness * 0.4})`;
+      ctx.lineWidth = 3.5 + brightness * 2.5;
+      ctx.shadowColor = `rgba(0, 255, 136, ${0.4 + brightness * 0.3})`;
+      ctx.shadowBlur = 28;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 2. Nœuds (points lumineux)
+      const step = Math.max(1, Math.floor(SPINE_POINTS / 35));
+      for (let i = 0; i < points.length; i += step) {
+        const p = points[i];
+        const radius = NODE_RADIUS + (1 + Math.sin(time * 2 + i * 0.3)) * 0.8;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius * 3);
+        grad.addColorStop(0, `rgba(0, 255, 136, ${0.9 * brightness})`);
+        grad.addColorStop(1, 'rgba(0, 255, 136, 0)');
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 136, ${0.9 * brightness})`;
+        ctx.fill();
+      }
+
+      // 3. Impulsion (énergie qui remonte)
+      const pulsePos = pulseOffset * H;
+      // Trouver le point le plus proche sur la courbe
+      let closest = points[0];
+      let minDist = Infinity;
+      for (const p of points) {
+        const d = Math.abs(p.y - pulsePos);
+        if (d < minDist) { minDist = d; closest = p; }
+      }
+      // Dessiner l'impulsion
+      const pulseRadius = 18 + 10 * Math.sin(time * 3);
+      const gradPulse = ctx.createRadialGradient(closest.x, closest.y, 0, closest.x, closest.y, pulseRadius * 2.5);
+      gradPulse.addColorStop(0, `rgba(0, 255, 136, ${0.95 * brightness})`);
+      gradPulse.addColorStop(0.4, `rgba(0, 255, 136, ${0.5 * brightness})`);
+      gradPulse.addColorStop(1, 'rgba(0, 255, 136, 0)');
+      ctx.beginPath();
+      ctx.arc(closest.x, closest.y, pulseRadius * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = gradPulse;
+      ctx.fill();
+      // Cercle central
+      ctx.beginPath();
+      ctx.arc(closest.x, closest.y, pulseRadius * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.8 * brightness})`;
+      ctx.fill();
+
+      // 4. Symboles IA (apparition aléatoire)
+      if (Math.random() < 0.02) {
+        const idx = Math.floor(Math.random() * points.length);
+        const p = points[idx];
+        const sym = aiSymbols[Math.floor(Math.random() * aiSymbols.length)];
+        symbolList.push({
+          x: p.x + (Math.random() - 0.5) * 120,
+          y: p.y + (Math.random() - 0.5) * 80,
+          symbol: sym,
+          life: 1.0,
+          decay: 0.008 + Math.random() * 0.012
+        });
+      }
+      // Mettre à jour et dessiner les symboles
+      for (let i = symbolList.length - 1; i >= 0; i--) {
+        const s = symbolList[i];
+        s.life -= s.decay * scrollBoost;
+        if (s.life <= 0) {
+          symbolList.splice(i, 1);
+          continue;
+        }
+        ctx.font = '20px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = `rgba(0, 255, 136, ${s.life * 0.6 * brightness})`;
+        ctx.shadowColor = `rgba(0, 255, 136, ${s.life * 0.3 * brightness})`;
+        ctx.shadowBlur = 12;
+        ctx.fillText(s.symbol, s.x, s.y);
+        ctx.shadowBlur = 0;
+      }
+
+      // 5. Effet de respiration (épaisseur qui varie)
+      // déjà intégrée via brightness
+
+      // 6. Estompage en bas (disparition)
+      const fadeGrad = ctx.createLinearGradient(0, H - 60, 0, H);
+      fadeGrad.addColorStop(0, 'rgba(4,4,4,0)');
+      fadeGrad.addColorStop(1, 'rgba(4,4,4,0.95)');
+      ctx.fillStyle = fadeGrad;
+      ctx.fillRect(0, H - 60, W, 60);
+
+      // 7. Légère vignette en haut
+      const vignette = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, H * 0.6);
+      vignette.addColorStop(0, 'rgba(4,4,4,0)');
+      vignette.addColorStop(1, 'rgba(4,4,4,0.1)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, W, H);
+
+      requestAnimationFrame(drawSpine);
+    }
+
+    drawSpine();
+
+  })();
+</script>
+</body>
+</html>

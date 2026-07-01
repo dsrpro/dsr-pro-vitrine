@@ -172,7 +172,6 @@
             position: relative;
             overflow: hidden;
         }
-        /* SVG d'arrière‑plan "DsrPro" animé via JS */
         .hero-bg-svg {
             position: absolute;
             top: 55%;
@@ -632,7 +631,7 @@
 <!-- CONTENU PRINCIPAL -->
 <div class="content">
 
-    <!-- HERO avec SVG DsrPro animé (lettres indépendantes) -->
+    <!-- HERO avec SVG DsrPro animé -->
     <section class="hero" role="main">
         <svg class="hero-bg-svg" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
             <text class="letter" id="letter-D" x="120" y="100">D</text>
@@ -960,7 +959,7 @@
         </div>
     </section>
 
-    <!-- CONTACT -->
+    <!-- CONTACT (section ajoutée) -->
     <section class="contact-section" id="contact">
         <h2 class="fade-in">Prêt à démarrer votre projet ?</h2>
         <p class="fade-in">Décrivez votre besoin, je vous reviens avec un devis détaillé dans la journée. Réponse garantie sous 2h.</p>
@@ -973,14 +972,11 @@
         <div class="contact-note fade-in">Devis gratuit · Sans engagement · Réponse sous 2h</div>
 
         <div class="contact-form-wrap fade-in">
-            <!-- ✅ FORMULAIRE CORRIGÉ : action et méthode correctes -->
             <form action="https://formspree.io/f/xdarlqvg" method="POST">
                 <input type="text" name="name" placeholder="Votre nom" required>
                 <input type="email" name="email" placeholder="Votre adresse email" required>
                 <textarea name="message" placeholder="Décrivez votre projet (objectifs, fonctionnalités souhaitées...)" required></textarea>
                 <button type="submit">Envoyer la demande</button>
-                <!-- Message de confirmation (optionnel) -->
-                <div class="form-status" id="formStatus"></div>
             </form>
         </div>
 
@@ -1194,7 +1190,6 @@
         function drawSpine() {
             time += 0.008;
 
-            // Mettre à jour l'animation du SVG en même temps
             animateSVG(time);
 
             const scrollBoost = 1 + scrollPercent * 2.0;
@@ -1218,7 +1213,6 @@
 
             ctx.clearRect(0, 0, W, H);
 
-            // Ligne
             ctx.beginPath();
             ctx.moveTo(points[0].x, points[0].y);
             for (let i = 1; i < points.length; i++) {
@@ -1235,7 +1229,6 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Nœuds
             const step = Math.max(1, Math.floor(SPINE_POINTS / 35));
             for (let i = 0; i < points.length; i += step) {
                 const p = points[i];
@@ -1253,7 +1246,6 @@
                 ctx.fill();
             }
 
-            // Impulsion
             const pulsePos = pulseOffset * H;
             let closest = points[0];
             let minDist = Infinity;
@@ -1275,7 +1267,6 @@
             ctx.fillStyle = `rgba(255,255,255,${0.8 * brightness})`;
             ctx.fill();
 
-            // Symboles IA
             if (Math.random() < 0.02) {
                 const idx = Math.floor(Math.random() * points.length);
                 const p = points[idx];
@@ -1305,14 +1296,12 @@
                 ctx.shadowBlur = 0;
             }
 
-            // Fade en bas
             const fadeGrad = ctx.createLinearGradient(0, H - 60, 0, H);
             fadeGrad.addColorStop(0, 'rgba(4,4,4,0)');
             fadeGrad.addColorStop(1, 'rgba(4,4,4,0.95)');
             ctx.fillStyle = fadeGrad;
             ctx.fillRect(0, H - 60, W, 60);
 
-            // Vignette
             const vignette = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, H * 0.6);
             vignette.addColorStop(0, 'rgba(4,4,4,0)');
             vignette.addColorStop(1, 'rgba(4,4,4,0.1)');

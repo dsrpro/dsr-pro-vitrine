@@ -951,34 +951,61 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
-  <section class="contact-section" id="contact">
-    <h2 class="fade-in">Prêt à démarrer votre projet ?</h2>
-    <p class="fade-in">Décrivez votre besoin, je vous reviens avec un devis détaillé dans la journée. Réponse garantie sous 2h.</p>
-    <div class="fade-in">
-      <a href="https://t.me/Dsr_Pro" target="_blank" rel="noopener" class="contact-box">
-        <span class="telegram-icon">✈️</span>
-        <div class="contact-handle">@Dsr_Pro</div>
-      </a>
-    </div>
-    <div class="contact-note fade-in">Devis gratuit · Sans engagement · Réponse sous 2h</div>
-    <div class="contact-form-wrap fade-in">
-      <form id="contactForm" action="https://formspree.io/f/xdarlqvg" method="POST">
-        <input type="text" name="name" placeholder="Votre nom" required aria-required="true">
-        <input type="email" name="email" placeholder="Votre adresse email" required aria-required="true">
-        <textarea name="message" placeholder="Décrivez votre projet (objectifs, fonctionnalités souhaitées...)" required aria-required="true"></textarea>
-        <button type="submit">Envoyer la demande</button>
-        <div class="form-status" id="formStatus"></div>
-      </form>
-    </div>
-    <div class="perks-row fade-in">
-      <div class="perk-pill"><span class="dot"></span>Code propre & sécurisé</div>
-      <div class="perk-pill"><span class="dot"></span>Livraison 7 à 21 jours</div>
-      <div class="perk-pill"><span class="dot"></span>Support après livraison</div>
-      <div class="perk-pill"><span class="dot"></span>51+ clients · 8 pays</div>
-      <div class="perk-pill"><span class="dot"></span>Négociation possible</div>
-    </div>
-  </section>
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <h2 class="fade-in">Prêt à démarrer votre projet ?</h2>
+  <p class="fade-in">Décrivez votre besoin, je vous reviens avec un devis détaillé dans la journée. Réponse garantie sous 2h.</p>
+
+  <!-- Lien Telegram (inchangé) -->
+  <div class="fade-in">
+    <a href="https://t.me/Dsr_Pro" target="_blank" rel="noopener" class="contact-box">
+      <span class="telegram-icon">✈️</span>
+      <div class="contact-handle">@Dsr_Pro</div>
+    </a>
+  </div>
+  <div class="contact-note fade-in">Devis gratuit · Sans engagement · Réponse sous 2h</div>
+
+  <!-- FORMULAIRE CORRIGÉ -->
+  <div class="contact-form-wrap fade-in">
+    <form 
+      action="https://formspree.io/f/xdarlqvg" 
+      method="POST"
+      id="contactForm"
+    >
+      <input 
+        type="text" 
+        name="name" 
+        placeholder="Votre nom" 
+        required 
+        aria-required="true"
+      >
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="Votre adresse email" 
+        required 
+        aria-required="true"
+      >
+      <textarea 
+        name="message" 
+        placeholder="Décrivez votre projet (objectifs, fonctionnalités souhaitées...)" 
+        required 
+        aria-required="true"
+      ></textarea>
+      <button type="submit">Envoyer la demande</button>
+      <!-- Message de confirmation après envoi -->
+      <div class="form-status" id="formStatus"></div>
+    </form>
+  </div>
+
+  <div class="perks-row fade-in">
+    <div class="perk-pill"><span class="dot"></span>Code propre & sécurisé</div>
+    <div class="perk-pill"><span class="dot"></span>Livraison 7 à 21 jours</div>
+    <div class="perk-pill"><span class="dot"></span>Support après livraison</div>
+    <div class="perk-pill"><span class="dot"></span>51+ clients · 8 pays</div>
+    <div class="perk-pill"><span class="dot"></span>Négociation possible</div>
+  </div>
+</section>
 
 </div> <!-- /content -->
 
